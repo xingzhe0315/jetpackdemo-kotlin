@@ -8,18 +8,13 @@ import android.widget.RelativeLayout
 /**
  * Created by wumm on 2019/5/9.
  */
-abstract class LoadingView(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr) {
+abstract class LoadingView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
+    : RelativeLayout(context, attrs, defStyleAttr) {
     var retryHandler: DataRetryHandler? = null
     private var mLoadingView: View? = null
     private var mErrorView: View? = null
     private var mEmptyView: View? = null
-    var error: BaseObserver.ResponseError?=null
-
-    init {
-        showLoading()
-    }
+    var error: BaseObserver.ResponseError? = null
 
     fun setState(state: Int) {
         when (state) {
@@ -31,8 +26,10 @@ abstract class LoadingView(
     }
 
     private fun showView(view: View?) {
+        view ?: return
+
         removeAllViews()
-        if (view!!.parent == null) {
+        if (view.parent == null) {
             if (view.layoutParams == null) {
                 view.layoutParams = createLayoutParams()
             }
@@ -43,8 +40,8 @@ abstract class LoadingView(
     private fun showLoading() {
         if (mLoadingView == null) {
             mLoadingView = createLoadingView()
-            if (mLoadingView!!.layoutParams == null) {
-                mLoadingView!!.layoutParams = createLayoutParams()
+            if (mLoadingView?.layoutParams == null) {
+                mLoadingView?.layoutParams = createLayoutParams()
             }
         }
         showView(mLoadingView)
@@ -53,19 +50,18 @@ abstract class LoadingView(
     private fun showError() {
         if (mErrorView == null) {
             mErrorView = createErrorView(error)
-            if (mErrorView!!.layoutParams == null) {
-                mErrorView!!.layoutParams = createLayoutParams()
+            if (mErrorView?.layoutParams == null) {
+                mErrorView?.layoutParams = createLayoutParams()
             }
-            mErrorView!!.setOnClickListener { if (retryHandler != null) retryHandler!!.onDataRetry() }
+            mErrorView?.setOnClickListener { retryHandler?.onDataRetry() }
         }
-        showView(mErrorView)
     }
 
     private fun showEmpty() {
         if (mEmptyView == null) {
             mEmptyView = createEmptyView()
-            if (mEmptyView!!.layoutParams == null) {
-                mEmptyView!!.layoutParams = createLayoutParams()
+            if (mEmptyView?.layoutParams == null) {
+                mEmptyView?.layoutParams = createLayoutParams()
             }
         }
         showView(mEmptyView)
@@ -80,7 +76,6 @@ abstract class LoadingView(
     private fun createLayoutParams(): LayoutParams {
         return LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     }
-
 
 
     class LoadingState {

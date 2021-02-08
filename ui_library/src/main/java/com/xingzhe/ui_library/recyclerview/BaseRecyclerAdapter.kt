@@ -29,21 +29,23 @@ abstract class BaseRecyclerAdapter<Data> : RecyclerView.Adapter<CommonRecyclerVi
     }
 
     fun dataAppendAndNotify(appendData: ArrayList<Data>?) {
+        appendData ?: return
+
         val startIndex = itemCount
         dataAppend(appendData)
-        notifyItemRangeInserted(startIndex, appendData!!.size)
+        notifyItemRangeInserted(startIndex, appendData.size)
     }
 
-    private fun dataAppend(appendData: ArrayList<Data>?) {
+    private fun dataAppend(appendData: ArrayList<Data>) {
         if (dataList == null)
             dataList = ArrayList()
-        dataList!!.addAll(appendData!!)
+        dataList?.addAll(appendData)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommonRecyclerViewHolder {
-        if (viewType >= FOOTER_TYPE){
+        if (viewType >= FOOTER_TYPE) {
             return CommonRecyclerViewHolder(getFooterViewAt(viewType - FOOTER_TYPE))
-        } else if (viewType >= HEADER_TYPE){
+        } else if (viewType >= HEADER_TYPE) {
             return CommonRecyclerViewHolder(getHeaderViewAt(viewType - HEADER_TYPE))
         }
         return CommonRecyclerViewHolder(createItemView(parent.context))
@@ -54,16 +56,18 @@ abstract class BaseRecyclerAdapter<Data> : RecyclerView.Adapter<CommonRecyclerVi
     }
 
     override fun onBindViewHolder(viewHolder: CommonRecyclerViewHolder, position: Int) {
-        if (position < getHeaderCount()){
-            bindHeaderView(viewHolder,position);
-        } else if (position >= getHeaderCount() + getDataSize()){
-            bindFooterView(viewHolder,position - getHeaderCount() - getDataSize())
+        if (position < getHeaderCount()) {
+            bindHeaderView(viewHolder, position);
+        } else if (position >= getHeaderCount() + getDataSize()) {
+            bindFooterView(viewHolder, position - getHeaderCount() - getDataSize())
         } else {
-            val realPosition = position-getHeaderCount()
-            bindItemView(viewHolder, realPosition, dataList!![realPosition])
-            viewHolder.itemView.setOnClickListener(View.OnClickListener {
-                itemClickListener?.onItemClick(realPosition,dataList!![realPosition])
-            })
+            val realPosition = position - getHeaderCount()
+            bindItemView(viewHolder, realPosition, dataList?.get(realPosition))
+            viewHolder.itemView.setOnClickListener {
+                val item = dataList?.getOrNull(realPosition) ?: return@setOnClickListener
+
+                itemClickListener?.onItemClick(realPosition, item)
+            }
         }
     }
 
@@ -73,9 +77,7 @@ abstract class BaseRecyclerAdapter<Data> : RecyclerView.Adapter<CommonRecyclerVi
     private fun bindFooterView(viewHolder: CommonRecyclerViewHolder, position: Int) {
     }
 
-    fun getDataSize(): Int {
-        return if (dataList == null) 0 else dataList!!.size
-    }
+    private fun getDataSize(): Int = dataList?.run { size } ?: 0
 
     fun addHeaderView(header: View) {
         headerList.add(header)
@@ -97,38 +99,32 @@ abstract class BaseRecyclerAdapter<Data> : RecyclerView.Adapter<CommonRecyclerVi
         notifyDataSetChanged()
     }
 
-    fun getHeaderCount(): Int {
-        return headerList.size
-    }
+    fun getHeaderCount(): Int = headerList.size
 
-    fun getFooterCount(): Int {
-        return footerList.size
-    }
 
-    fun getHeaderViewAt(index:Int):View{
-        return headerList[index]
-    }
+    fun getFooterCount(): Int = footerList.size
 
-    fun getFooterViewAt(index:Int):View{
-        return footerList[index]
-    }
+    fun getHeaderViewAt(index: Int): View = headerList[index]
+
+
+    fun getFooterViewAt(index: Int): View = footerList[index]
 
     override fun getItemViewType(position: Int): Int {
-        if (position<getHeaderCount()){
+        if (position < getHeaderCount()) {
             return HEADER_TYPE + position
-        } else if (position>=getHeaderCount()+getDataSize()){
-            return FOOTER_TYPE + position - getHeaderCount()-getDataSize()
+        } else if (position >= getHeaderCount() + getDataSize()) {
+            return FOOTER_TYPE + position - getHeaderCount() - getDataSize()
         }
         return super.getItemViewType(position)
     }
 
     abstract fun createItemView(context: Context): View
 
-    abstract fun bindItemView(viewHolder: CommonRecyclerViewHolder, position: Int, data: Data)
+    abstract fun bindItemView(viewHolder: CommonRecyclerViewHolder, position: Int, data: Data?)
 
-    var itemClickListener: OnItemClickListener<Data>?=null
+    var itemClickListener: OnItemClickListener<Data>? = null
 
-    interface OnItemClickListener<Data>{
-        fun onItemClick(position:Int,data:Data)
+    interface OnItemClickListener<Data> {
+        fun onItemClick(position: Int, data: Data)
     }
 }

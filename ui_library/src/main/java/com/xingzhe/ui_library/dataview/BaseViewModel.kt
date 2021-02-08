@@ -23,37 +23,29 @@ abstract class BaseViewModel<Data> : ViewModel() {
 
     fun startLoad() {
         getObservable().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : BaseObserver<BaseResponseData<*>>() {
-                override fun onDataSuccess(responses: List<BaseResponseData<*>>) {
-                    getDataFromObserver(responses)
-                }
+                .subscribe(object : BaseObserver<BaseResponseData<*>>() {
+                    override fun onDataSuccess(responses: List<BaseResponseData<*>>) {
+                        onFetchSuccess(responses)
+                    }
 
-                override fun onDataError(error: ResponseError): Boolean {
-                    errorLiveData.value = error
-                    return true
-                }
+                    override fun onDataError(error: ResponseError): Boolean {
+                        return onFetchError(error)
+                    }
 
-            })
+                })
     }
 
-    open fun getDataFromObserver(responses: List<BaseResponseData<*>>) {
+    open fun onFetchSuccess(responses: List<BaseResponseData<*>>) {
         liveData.value = getDataFromResponse(responses)
     }
 
-    open fun getDataFromResponse(responses: List<BaseResponseData<*>>): Data? {
-        return if (isSingle()) getSingleDataFromResponse(responses[0]) else getMultiDataFromResponses(responses)
-    }
-
-    protected open fun getSingleDataFromResponse(response: BaseResponseData<*>): Data? {
-        return response as Data
-    }
-
-    protected open fun getMultiDataFromResponses(responses: List<BaseResponseData<*>>): Data? {
-        return null
-    }
-
-    protected open fun isSingle(): Boolean {
+    open fun onFetchError(error: BaseObserver.ResponseError): Boolean {
+        errorLiveData.value = error
         return true
+    }
+
+    open fun getDataFromResponse(responses: List<BaseResponseData<*>>): Data? {
+        return responses[0] as? Data
     }
 
 }

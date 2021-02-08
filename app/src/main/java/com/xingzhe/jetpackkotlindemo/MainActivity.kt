@@ -9,8 +9,8 @@ import android.widget.Button
 import android.widget.Toast
 import com.xingzhe.jetpackkotlindemo.base.BaseActivity
 import com.xingzhe.jetpackkotlindemo.base.TaskManager
-import com.xingzhe.ui_library.dataview.ViewModelCreator
 import com.xingzhe.ui_library.dataview.SimpleDataView
+import com.xingzhe.ui_library.dataview.ViewModelCreator
 import com.xingzhe.ui_library.viewpager.BasePagerAdapter
 import com.xingzhe.ui_library.viewpager.XZViewPager
 
@@ -30,7 +30,7 @@ class MainActivity : BaseActivity() {
         private var adapter: AccountPagerAdapter? = null
 
         override fun createViewModel(): MainViewModel {
-            return com.xingzhe.ui_library.dataview.ViewModelCreator.createViewModel(context,MainViewModel::class.java)
+            return ViewModelCreator.createViewModel(context, MainViewModel::class.java)
         }
 
         override fun createView(context: Context): View {
@@ -42,17 +42,19 @@ class MainActivity : BaseActivity() {
             accountTab.setupWithViewPager(viewPager)
             viewPager.showPage(0)
             view.findViewById<Button>(R.id.header_list).setOnClickListener {
-                TaskManager.executeAfterChooseCategory(context as BaseActivity,object :TaskManager.TaskAction{
-                    override fun action(data: Intent?) {
-                        Toast.makeText(context,data?.getStringExtra("name"),Toast.LENGTH_LONG).show()
-                    }
-                })
+                TaskManager.executeAfterChooseCategory(context as BaseActivity,
+                        object : TaskManager.TaskAction {
+                            override fun action(data: Intent?) {
+                                Toast.makeText(context, data?.getStringExtra("name"), Toast.LENGTH_LONG)
+                                        .show()
+                            }
+                        })
             }
             return view
         }
 
         override fun bindView(data: AccountListEntity) {
-            adapter!!.accountList = data.data as MutableList<AccountListEntity.Account>
+            adapter?.accountList = data.data as MutableList<AccountListEntity.Account>
         }
 
     }
@@ -66,16 +68,16 @@ class MainActivity : BaseActivity() {
 
         override fun createItemView(context: Context, position: Int): View {
             val articleListView = ArticleListView(context)
-            articleListView.accountId = accountList!![position].id.toString()
+            articleListView.accountId = accountList?.getOrNull(position)?.id?.toString() ?: ""
             return articleListView
         }
 
         override fun getCount(): Int {
-            return if (accountList == null) 0 else accountList!!.size
+            return accountList?.size ?: 0
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
-            return accountList!![position].name
+            return accountList?.getOrNull(position)?.name
         }
 
     }

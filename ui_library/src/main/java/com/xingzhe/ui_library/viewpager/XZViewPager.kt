@@ -32,8 +32,8 @@ class XZViewPager(context: Context, attrs: AttributeSet? = null) : ViewPager(con
                         currentPage = cachedViewAt
                     }
 
-                    if (currentItem != null && currentItem != currentPage) {
-                        currentItem!!.onPageHide()
+                    if (currentItem != currentPage) {
+                        currentItem?.onPageHide()
                     }
 
                     if (currentPage != null) {
@@ -71,8 +71,8 @@ class XZViewPager(context: Context, attrs: AttributeSet? = null) : ViewPager(con
                     currentPage = cachedViewAt
                 }
 
-                if (currentItem != null && currentItem != currentPage) {
-                    currentItem!!.onPageHide()
+                if (currentItem != currentPage) {
+                    currentItem?.onPageHide()
                 }
 
                 if (currentPage != null) {
